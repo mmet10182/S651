@@ -73,7 +73,7 @@ def apiv1_send_message(state, content):
         subject = "Report Raid " + str(ip_addr[0])
     else:
         subject = "RAID ERROR !!!" + str(ip_addr[0])
-        
+
     msg = MIMEText(content)
     msg['Subject'] = subject
     server = smtplib.SMTP(MAIL_SERVER)
