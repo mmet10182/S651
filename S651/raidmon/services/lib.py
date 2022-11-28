@@ -11,6 +11,7 @@ from django.core.files.storage import FileSystemStorage
 def apiv1_save_report(reportfile, uid):
     file_name = '{}_{}'.format(datetime.now().strftime('%d-%m-%Y_%H-%M-%S'), 'report.log')
     fs = FileSystemStorage(location=os.path.join(APIV1_DATA_FOLDER_HOSTS, uid))
+    print((reportfile.read()).decode('utf-8'))
     filename = fs.save(file_name, reportfile)
     path = os.path.join(APIV1_DATA_FOLDER_HOSTS, uid, filename).replace('\\', '/')
     return path
@@ -82,12 +83,13 @@ def apiv1_send_message(state, content):
     else:
         subject = "RAID ERROR !!!" + str(ip_addr[0])
 
-    msg = MIMEText(content)
-    msg['Subject'] = subject
-    server = smtplib.SMTP(config('MAIL_SERVER'))
-    for mail_to in config('MAIL_TO', cast=lambda v: [s.strip() for s in v.split(',')]):
-        server.sendmail(config('MAIL_FROM'), mail_to, msg.as_string())
-    server.quit()
+    if 'mail.example.int' not in config('MAIL_SERVER'):
+        msg = MIMEText(content)
+        msg['Subject'] = subject
+        server = smtplib.SMTP(config('MAIL_SERVER'))
+        for mail_to in config('MAIL_TO', cast=lambda v: [s.strip() for s in v.split(',')]):
+            server.sendmail(config('MAIL_FROM'), mail_to, msg.as_string())
+        server.quit()
 
 
 def apiv1_remove_old_report(report_path):
