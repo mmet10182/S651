@@ -2,16 +2,17 @@ import re
 import smtplib
 from email.mime.text import MIMEText
 
-from .settings import APIV1_DATA_FOLDER_HOSTS, MAIL_FROM, MAIL_TO, MAIL_SERVER
+from .settings import APIV1_DATA_FOLDER_HOSTS, MAIL_FROM, MAIL_TO, MAIL_SERVER, APIV1_DATA_FOLDER
 import os
 from datetime import datetime
+from django.core.files.storage import FileSystemStorage
 
 
-def apiv1_save_report(shell_out, uid):
+def apiv1_save_report(reportfile, uid):
     file_name = '{}_{}'.format(datetime.now().strftime('%d-%m-%Y_%H-%M-%S'), 'report.log')
-    path = os.path.join(APIV1_DATA_FOLDER_HOSTS, uid, file_name)
-    with open(path, 'w') as f:
-        f.write(shell_out)
+    fs = FileSystemStorage(location=os.path.join(APIV1_DATA_FOLDER_HOSTS, uid))
+    filename = fs.save(file_name, reportfile)
+    path = os.path.join(APIV1_DATA_FOLDER_HOSTS, uid, filename).replace('\\', '/')
     return path
 
 
@@ -24,6 +25,12 @@ def apiv1_create_folder_uid(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def apiv1_get_content(report_path):
+    with open(report_path, 'r') as f:
+        content_report = f.readlines()
+    return content_report
 
 
 def apiv1_check_report(report_path):
@@ -66,6 +73,7 @@ def apiv1_get_status(regex, allowed, content):
 
 
 def apiv1_send_message(state, content):
+    content = ' '.join(content)
     regex = "\d+.\d+.\d+.\d+"
     ip_addr = re.search(regex, content)
 
@@ -74,12 +82,12 @@ def apiv1_send_message(state, content):
     else:
         subject = "RAID ERROR !!!" + str(ip_addr[0])
 
-    msg = MIMEText(content)
-    msg['Subject'] = subject
-    server = smtplib.SMTP(MAIL_SERVER)
-    for mail_to in MAIL_TO:
-        server.sendmail(MAIL_FROM, mail_to, msg.as_string())
-    server.quit()
+    # msg = MIMEText(content)
+    # msg['Subject'] = subject
+    # server = smtplib.SMTP(MAIL_SERVER)
+    # for mail_to in MAIL_TO:chm
+    #     server.sendmail(MAIL_FROM, mail_to, msg.as_string())
+    # server.quit()
 
 
 def apiv1_remove_old_report(report_path):
