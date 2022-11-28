@@ -85,7 +85,7 @@ def apiv1_send_message(state, content):
     msg = MIMEText(content)
     msg['Subject'] = subject
     server = smtplib.SMTP(config('MAIL_SERVER'))
-    for mail_to in config('MAIL_TO'):
+    for mail_to in config('MAIL_TO', cast=lambda v: [s.strip() for s in v.split(',')]):
         server.sendmail(config('MAIL_FROM'), mail_to, msg.as_string())
     server.quit()
 
