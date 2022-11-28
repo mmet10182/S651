@@ -73,7 +73,7 @@ def apiv1_get_status(regex, allowed, content):
 
 
 def apiv1_send_message(state, content):
-    content = ' '.join(content).decode('utf-8')
+    content = ' '.join(content)
     regex = "\d+.\d+.\d+.\d+"
     ip_addr = re.search(regex, content)
 
