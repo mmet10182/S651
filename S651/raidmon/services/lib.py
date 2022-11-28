@@ -1,8 +1,8 @@
 import re
 import smtplib
 from email.mime.text import MIMEText
-
-from .settings import APIV1_DATA_FOLDER_HOSTS, MAIL_FROM, MAIL_TO, MAIL_SERVER, APIV1_DATA_FOLDER
+from decouple import config
+from .settings import APIV1_DATA_FOLDER_HOSTS
 import os
 from datetime import datetime
 from django.core.files.storage import FileSystemStorage
@@ -82,12 +82,12 @@ def apiv1_send_message(state, content):
     else:
         subject = "RAID ERROR !!!" + str(ip_addr[0])
 
-    # msg = MIMEText(content)
-    # msg['Subject'] = subject
-    # server = smtplib.SMTP(MAIL_SERVER)
-    # for mail_to in MAIL_TO:chm
-    #     server.sendmail(MAIL_FROM, mail_to, msg.as_string())
-    # server.quit()
+    msg = MIMEText(content)
+    msg['Subject'] = subject
+    server = smtplib.SMTP(config('MAIL_SERVER'))
+    for mail_to in config('MAIL_TO'):
+        server.sendmail(config('MAIL_FROM'), mail_to, msg.as_string())
+    server.quit()
 
 
 def apiv1_remove_old_report(report_path):
