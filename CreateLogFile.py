@@ -14,7 +14,7 @@ ip_addr=socket.gethostbyname(hostname)
 hwuuid = Popen(['esxcfg-info', '--hwuuid'], stdout=PIPE).communicate()[0]
 hwuuid = hwuuid.decode('utf-8').strip()
 
-host = 'http://IP/raidmon/api/v1/hosts/{}/disks/report'.format(hwuuid)
+host = 'http://10.7.240.156:443/raidmon/api/v1/hosts/{}/disks/report'.format(hwuuid)
 
 def make_request(url, data, headers={}):
     req = Request(url, headers=headers, data=data)
@@ -24,7 +24,10 @@ def make_request(url, data, headers={}):
 
 
 def get_report_raid():
-    shell_out = Popen(["/opt/lsi/storcli64/storcli64", "/c0 show"], stdout=PIPE).communicate()[0]
+    try:
+      shell_out = Popen(["/opt/lsi/storcli64/storcli64", "/c0 show"], stdout=PIPE).communicate()[0]
+    except FileNotFoundError:
+      shell_out = Popen(["/opt/pmc/arcconf", "getconfig", "1"], stdout=PIPE).communicate()[0]
     shell_out = str('{}\n{}'.format(ip_addr, shell_out.decode('utf-8'))).encode()
     return shell_out
 
