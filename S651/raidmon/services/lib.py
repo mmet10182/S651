@@ -11,7 +11,6 @@ from django.core.files.storage import FileSystemStorage
 def apiv1_save_report(reportfile, uid):
     file_name = '{}_{}'.format(datetime.now().strftime('%d-%m-%Y_%H-%M-%S'), 'report.log')
     fs = FileSystemStorage(location=os.path.join(APIV1_DATA_FOLDER_HOSTS, uid))
-    print((reportfile.read()).decode('utf-8'))
     filename = fs.save(file_name, reportfile)
     path = os.path.join(APIV1_DATA_FOLDER_HOSTS, uid, filename).replace('\\', '/')
     return path
@@ -49,7 +48,7 @@ def apiv1_check_report(report_path):
                 return apiv1_get_status(regex, allowed, content_report)
             elif asr:
                 regex = r"(status\sof\slogical\sdevice)\s+:\s([a-z0-9]+)"
-                allowed =  ['optl', 'ok']
+                allowed =  ['optimal', 'optl', 'ok']
                 return apiv1_get_status(regex, allowed, content_report)
             elif len(content_report) == index - 1 and (lsi and asr) is None:
                 report1 = {'model': 'Could not detect controller type',
@@ -65,11 +64,13 @@ def apiv1_get_status(regex, allowed, content):
     if not values:
         status = False
     for value in values:
+        print(value[1].lower().replace(' ', ''))
         if value[1].lower().replace(' ', '') in allowed:
             status = True
         else:
             status = False
             break
+    print(status)
     return status
 
 
