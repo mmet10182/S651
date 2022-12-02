@@ -16,7 +16,7 @@ ip_addr=socket.gethostbyname(hostname)
 hwuuid = Popen(['esxcfg-info', '--hwuuid'], stdout=PIPE).communicate()[0]
 hwuuid = hwuuid.decode('utf-8').strip()
 
-host = 'http://10.7.240.156:443/raidmon/api/v1/hosts/{}/disks/report'.format(hwuuid)
+host = 'http://IP:443/raidmon/api/v1/hosts/{}/disks/report'.format(hwuuid)
 
 def make_request(url, data, headers={}):
     req = Request(url, headers=headers, data=data)
@@ -25,7 +25,8 @@ def make_request(url, data, headers={}):
 
 
 def get_report_raid():
-    path = os.getcwd()
+    path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(path)
     cmd = os.path.join(path, 'storcli')
     shell_out = Popen([cmd, "/c0 show"], stdout=PIPE).communicate()[0]
     shell_out = str('{}\n{}'.format(ip_addr, shell_out.decode('utf-8'))).encode()
