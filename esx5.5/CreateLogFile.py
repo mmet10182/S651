@@ -47,7 +47,12 @@ def get_report_raid():
     path = os.path.dirname(os.path.realpath(__file__))
     os.chdir(path)
     cmd = os.path.join(path, 'storcli')
-    shell_out = Popen([cmd, "/c0 show"], stdout=PIPE).communicate()[0]
+    try:
+      cmd = os.path.join(path, 'storcli')
+      shell_out = Popen([cmd, "/c0 show"], stdout=PIPE).communicate()[0]
+    except OSError:
+      cmd = ['/opt/pmc/arcconf', 'getconfig', '1']
+      shell_out = Popen(cmd, stdout=PIPE).communicate()[0]
     ip_addr = ' '.join(get_ip())
     shell_out = str('{}\n{}'.format(ip_addr, shell_out.decode('utf-8'))).encode()
     return shell_out
