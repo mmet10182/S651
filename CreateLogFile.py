@@ -16,6 +16,24 @@ hwuuid = hwuuid.decode('utf-8').strip()
 
 host = 'http://IP:443/raidmon/api/v1/hosts/{}/disks/report'.format(hwuuid)
 
+
+def get_ip():
+    """
+    Function parsing output bellow
+    Example:
+    Name  IPv4 Address  IPv4 Netmask   IPv4 Broadcast  Address Type  DHCP DNS
+    ----  ------------  -------------  --------------  ------------  --------
+    vmk1  192.168.0.1   255.255.255.0  192.168.0.254   STATIC           false
+    vmk0  192.168.1.1   255.255.255.0  192.168.1.254   STATIC           false
+    
+    """
+    first = ["/bin/esxcli", "network", "ip", "interface", "ipv4", "get"]
+    second =  ["/bin/awk", "{print $2}"]
+    p1 = Popen(first, stdout=PIPE)
+    p2 = Popen(second, stdin=p1.stdout, stdout=PIPE).communicate()[0]
+    return p2.strip().split('\n')[2:]
+
+
 def make_request(url, data, headers={}):
     req = Request(url, headers=headers, data=data)
 
@@ -28,6 +46,7 @@ def get_report_raid():
       shell_out = Popen(["/opt/lsi/storcli64/storcli64", "/c0 show"], stdout=PIPE).communicate()[0]
     except FileNotFoundError:
       shell_out = Popen(["/opt/pmc/arcconf", "getconfig", "1"], stdout=PIPE).communicate()[0]
+    ip_addr = ' '.join(get_ip())
     shell_out = str('{}\n{}'.format(ip_addr, shell_out.decode('utf-8'))).encode()
     return shell_out
 
