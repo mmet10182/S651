@@ -14,7 +14,7 @@ ip_addr=socket.gethostbyname(hostname)
 hwuuid = Popen(['esxcfg-info', '--hwuuid'], stdout=PIPE).communicate()[0]
 hwuuid = hwuuid.decode('utf-8').strip()
 
-host = 'http://10.7.240.156:443/raidmon/api/v1/hosts/{}/disks/report'.format(hwuuid)
+host = 'http://IP:443/raidmon/api/v1/hosts/{}/disks/report'.format(hwuuid)
 
 def make_request(url, data, headers={}):
     req = Request(url, headers=headers, data=data)
