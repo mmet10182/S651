@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import io
 import uuid
-from urllib.request import urlopen, Request
+try:
+  from urllib.request import urlopen, Request
+except ImportError:
+  from urllib2 import Request, urlopen
 from subprocess import Popen, PIPE
 import socket
 
